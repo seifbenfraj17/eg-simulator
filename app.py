@@ -35,9 +35,16 @@ def index():
     
     if request.method == 'POST':
         use_case = request.form.get('use_case', 'uc1')
-        agent_level = request.form.get('agent_level', 'LV0')
-        has_bonus = request.form.get('has_bonus', 'no')
-        bonus_days = int(request.form.get('bonus_days', 0))
+        
+        # Récupérer le statut agent selon le use case
+        if use_case == 'uc1':
+            agent_level = request.form.get('agent_level', 'LV0')
+            has_bonus = request.form.get('has_bonus', 'no')
+            bonus_days = int(request.form.get('bonus_days', 0))
+        else:
+            agent_level = request.form.get('agent_level', 'LV0')
+            has_bonus = request.form.get('has_bonus', 'no')
+            bonus_days = int(request.form.get('bonus_days', 0))
         
         # Base trades per day
         trades_per_day = 2

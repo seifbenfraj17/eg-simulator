@@ -19,28 +19,28 @@
         
         <!-- Onglets -->
         <div class="tabs">
-            <button class="tab-btn {% if use_case == 'uc1' %}active{% endif %}" onclick="switchTab('uc1')">📈 Gains en X jours</button>
-            <button class="tab-btn {% if use_case == 'uc2' %}active{% endif %}" onclick="switchTab('uc2')">🎯 Atteindre objectif</button>
+            <button class="tab-btn {% if use_case == 'uc1' %}active{% endif %}" onclick="switchTab(event, 'uc1')">📈 Gains en X jours</button>
+            <button class="tab-btn {% if use_case == 'uc2' %}active{% endif %}" onclick="switchTab(event, 'uc2')">🎯 Atteindre objectif</button>
         </div>
         
-        <form method="post" id="simulatorForm">
+        <form method="post" id="simulatorForm" onsubmit="validateAndSubmit(event)">
             <input type="hidden" id="use_case" name="use_case" value="{{ use_case }}">
             
             <!-- Use Case 1 : Calculer gains après X jours -->
-            <div id="tab-uc1" class="tab-content {% if use_case != 'uc1' %}hidden{% endif %}">
+            <div id="tab-uc1" class="tab-content {% if use_case != 'uc1' %}hidden{% endif %}" data-tab="uc1">
                 <div class="form-group">
                     <label for="uc1_capital">Capital de départ</label>
-                    <input type="number" id="uc1_capital" name="capital" step="0.01" placeholder="e.g. 1000" required>
+                    <input type="number" id="uc1_capital" name="uc1_capital" step="0.01" placeholder="e.g. 1000">
                 </div>
                 
                 <div class="form-group">
                     <label for="uc1_days">Nombre de jours</label>
-                    <input type="number" id="uc1_days" name="days" min="1" placeholder="e.g. 14">
+                    <input type="number" id="uc1_days" name="uc1_days" min="1" placeholder="e.g. 14" value="14">
                 </div>
                 
                 <div class="form-group">
                     <label for="uc1_agent_level">Statut agent</label>
-                    <select id="uc1_agent_level" name="agent_level" required>
+                    <select id="uc1_agent_level" name="uc1_agent_level">
                         <option value="LV0">LV0 - Aucun bonus (2 trades/jour)</option>
                         <option value="LV1">LV1 - +1 trade/jour (3 trades/jour)</option>
                         <option value="LV2">LV2 - +2 trades/jour (4 trades/jour)</option>
@@ -49,7 +49,7 @@
                 
                 <div class="form-group">
                     <label for="uc1_has_bonus">Trades bonus supplémentaires ?</label>
-                    <select id="uc1_has_bonus" name="has_bonus" required onchange="toggleBonusDays('uc1')">
+                    <select id="uc1_has_bonus" name="uc1_has_bonus" onchange="toggleBonusDays('uc1')">
                         <option value="no">Non</option>
                         <option value="yes">Oui (+2 trades/jour)</option>
                     </select>
@@ -57,25 +57,25 @@
                 
                 <div id="uc1_bonus_days_group" class="form-group" style="display:none;">
                     <label for="uc1_bonus_days">Nombre de jours avec bonus</label>
-                    <input type="number" id="uc1_bonus_days" name="bonus_days" min="0" value="0">
+                    <input type="number" id="uc1_bonus_days" name="uc1_bonus_days" min="0" value="0">
                 </div>
             </div>
             
             <!-- Use Case 2 : Calculer jours pour atteindre objectif -->
-            <div id="tab-uc2" class="tab-content {% if use_case != 'uc2' %}hidden{% endif %}">
+            <div id="tab-uc2" class="tab-content {% if use_case != 'uc2' %}hidden{% endif %}" data-tab="uc2">
                 <div class="form-group">
                     <label for="uc2_capital">Capital de départ</label>
-                    <input type="number" id="uc2_capital" name="capital" step="0.01" placeholder="e.g. 1000" required>
+                    <input type="number" id="uc2_capital" name="uc2_capital" step="0.01" placeholder="e.g. 1000">
                 </div>
                 
                 <div class="form-group">
                     <label for="uc2_objective">Objectif (capital cible)</label>
-                    <input type="number" id="uc2_objective" name="objective" step="0.01" placeholder="e.g. 2000" required>
+                    <input type="number" id="uc2_objective" name="uc2_objective" step="0.01" placeholder="e.g. 2000">
                 </div>
                 
                 <div class="form-group">
                     <label for="uc2_agent_level">Statut agent</label>
-                    <select id="uc2_agent_level" name="agent_level" required>
+                    <select id="uc2_agent_level" name="uc2_agent_level">
                         <option value="LV0">LV0 - Aucun bonus (2 trades/jour)</option>
                         <option value="LV1">LV1 - +1 trade/jour (3 trades/jour)</option>
                         <option value="LV2">LV2 - +2 trades/jour (4 trades/jour)</option>
@@ -84,7 +84,7 @@
                 
                 <div class="form-group">
                     <label for="uc2_has_bonus">Trades bonus supplémentaires ?</label>
-                    <select id="uc2_has_bonus" name="has_bonus" required onchange="toggleBonusDays('uc2')">
+                    <select id="uc2_has_bonus" name="uc2_has_bonus" onchange="toggleBonusDays('uc2')">
                         <option value="no">Non</option>
                         <option value="yes">Oui (+2 trades/jour)</option>
                     </select>
@@ -92,7 +92,7 @@
                 
                 <div id="uc2_bonus_days_group" class="form-group" style="display:none;">
                     <label for="uc2_bonus_days">Nombre de jours avec bonus</label>
-                    <input type="number" id="uc2_bonus_days" name="bonus_days" min="0" value="0">
+                    <input type="number" id="uc2_bonus_days" name="uc2_bonus_days" min="0" value="0">
                 </div>
             </div>
             
@@ -135,7 +135,13 @@
             });
     }
     
-    function switchTab(tabName) {
+    function getCurrentTab() {
+        return document.getElementById('use_case').value || 'uc1';
+    }
+    
+    function switchTab(e, tabName) {
+        e.preventDefault();
+        
         // Masquer tous les onglets
         document.getElementById('tab-uc1').classList.add('hidden');
         document.getElementById('tab-uc2').classList.add('hidden');
@@ -145,26 +151,84 @@
         
         // Mettre à jour le bouton actif
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        event.target.classList.add('active');
+        e.target.classList.add('active');
         
         // Mettre à jour le champ caché
         document.getElementById('use_case').value = tabName;
-        
-        // Ajouter le champ 'days' ou 'objective' selon le tab si absent
-        let form = document.getElementById('simulatorForm');
-        if (tabName === 'uc1' && !form.querySelector('input[name="days"]')) {
-            form.querySelector('input[name="days"]').value = '14';
-        }
     }
     
     function toggleBonusDays(prefix) {
         var select = document.getElementById(prefix + '_has_bonus');
         var group = document.getElementById(prefix + '_bonus_days_group');
-        if (select.value === 'yes') {
-            group.style.display = 'flex';
-        } else {
-            group.style.display = 'none';
+        if (select && group) {
+            if (select.value === 'yes') {
+                group.style.display = 'flex';
+            } else {
+                group.style.display = 'none';
+            }
         }
+    }
+    
+    function validateAndSubmit(e) {
+        const useCase = document.getElementById('use_case').value;
+        const form = document.getElementById('simulatorForm');
+        let isValid = true;
+        
+        // Valider selon le use case actif
+        if (useCase === 'uc1') {
+            const capital = document.getElementById('uc1_capital').value;
+            const days = document.getElementById('uc1_days').value;
+            
+            if (!capital || capital <= 0) {
+                alert('Veuillez entrer un capital valide');
+                isValid = false;
+            }
+            if (!days || days <= 0) {
+                alert('Veuillez entrer un nombre de jours valide');
+                isValid = false;
+            }
+        } else if (useCase === 'uc2') {
+            const capital = document.getElementById('uc2_capital').value;
+            const objective = document.getElementById('uc2_objective').value;
+            
+            if (!capital || capital <= 0) {
+                alert('Veuillez entrer un capital valide');
+                isValid = false;
+            }
+            if (!objective || objective <= 0) {
+                alert('Veuillez entrer un objectif valide');
+                isValid = false;
+            }
+            if (capital && objective && parseFloat(objective) <= parseFloat(capital)) {
+                alert('L\'objectif doit être supérieur au capital de départ');
+                isValid = false;
+            }
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+        } else {
+            // Renommer les champs pour correspondre au backend
+            remapFormFields(useCase);
+        }
+    }
+    
+    function remapFormFields(useCase) {
+        const form = document.getElementById('simulatorForm');
+        const inputs = form.querySelectorAll('input, select');
+        
+        inputs.forEach(input => {
+            if (useCase === 'uc1' && input.name.startsWith('uc1_')) {
+                const newName = input.name.replace('uc1_', '');
+                input.name = newName;
+            } else if (useCase === 'uc2' && input.name.startsWith('uc2_')) {
+                const newName = input.name.replace('uc2_', '');
+                input.name = newName;
+            } else if ((useCase === 'uc1' && input.name.startsWith('uc2_')) || 
+                       (useCase === 'uc2' && input.name.startsWith('uc1_'))) {
+                input.disabled = true;  // Désactiver les champs inutiles
+            }
+        });
     }
     
     window.onload = function() { 
