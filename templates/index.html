@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#667eea">
+    <meta name="description" content="Simulateur de calcul de bénéfices en trading avec bonus et statuts agent">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="EG Simulator">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%23667eea' width='180' height='180'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='90' font-weight='bold' fill='white' font-family='Arial'>💰</text></svg>">
+    <link rel="manifest" href="/static/manifest.json">
+    <title>Simulateur de Trading EG</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>💰 Simulateur EG Seif</h1>
+        <form method="post">
+            <div class="form-group">
+                <label for="capital">Capital de départ</label>
+                <input type="number" id="capital" name="capital" step="0.01" placeholder="e.g. 1000" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="days">Nombre de jours</label>
+                <input type="number" id="days" name="days" min="1" placeholder="e.g. 14" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="agent_level">Statut agent</label>
+                <select id="agent_level" name="agent_level" required>
+                    <option value="LV0">LV0 - Aucun bonus (2 trades/jour)</option>
+                    <option value="LV1">LV1 - +1 trade/jour (3 trades/jour)</option>
+                    <option value="LV2">LV2 - +2 trades/jour (4 trades/jour)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="has_bonus">Trades bonus supplémentaires ?</label>
+                <select id="has_bonus" name="has_bonus" required onchange="toggleBonusDays()">
+                    <option value="no">Non</option>
+                    <option value="yes">Oui (+2 trades/jour)</option>
+                </select>
+            </div>
+            
+            <div id="bonus_days_group" class="form-group" style="display:none;">
+                <label for="bonus_days">Nombre de jours avec bonus</label>
+                <input type="number" id="bonus_days" name="bonus_days" min="0" value="0">
+            </div>
+            
+            <button type="submit">📊 Calculer mes gains</button>
+        </form>
+        
+        {% if result is not none %}
+            <div class="result">
+                <h2>${{ result }}</h2>
+                <p>Capital final estimé</p>
+                <div class="result-summary">
+                    <p>💵 Gain: ${{ "%.2f"|format(result - capital) }}</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/static/service-worker.js')
+            .then(registration => {
+                console.log('Service Worker enregistré:', registration);
+            })
+            .catch(error => {
+                console.log('Erreur Service Worker:', error);
+            });
+    }
+    
+    function toggleBonusDays() {
+        var select = document.getElementById('has_bonus');
+        var group = document.getElementById('bonus_days_group');
+        if (select.value === 'yes') {
+            group.style.display = 'flex';
+        } else {
+            group.style.display = 'none';
+        }
+    }
+    window.onload = function() { toggleBonusDays(); };
+    </script>
+</body>
+</html>
