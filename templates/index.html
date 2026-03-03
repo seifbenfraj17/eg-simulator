@@ -319,24 +319,21 @@
         const useCaseId = document.getElementById('use_case').value;
         const config = useCaseConfigs[useCaseId];
         
-        const formData = new FormData();
-        formData.append('use_case', useCaseId);
-        
+        // Ajouter les champs hidden
         config.fields.forEach(field => {
-            let input;
-            if (field.type === 'hidden') {
-                input = document.createElement('input');
+            let existingInput = form.querySelector('[name="' + field.name + '"]');
+            if (!existingInput && field.type === 'hidden') {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = field.name;
                 input.value = field.value;
-            } else {
-                input = form.querySelector('[name="' + field.name + '"]');
-            }
-            if (input) {
-                formData.append(field.name, input.value);
+                form.appendChild(input);
             }
         });
         
-        const params = new URLSearchParams(formData);
-        window.location = window.location.pathname + '?' + params.toString();
+        // Soumettre normalement
+        form.method = 'POST';
+        form.action = '/';
         form.submit();
     }
     
