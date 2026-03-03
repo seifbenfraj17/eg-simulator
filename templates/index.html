@@ -13,295 +13,57 @@
     <title>Simulateur de Trading EG</title>
     <link rel="stylesheet" href="/static/style.css">
     <style>
-        .tabs-container { overflow-x: auto; }
-        .tabs { display: flex; gap: 5px; margin-bottom: 25px; border-bottom: 2px solid #e2e8f0; flex-wrap: wrap; }
-        .tab-btn { padding: 10px 15px; border: none; background: none; color: #4a5568; font-weight: 600; font-size: 12px; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+        .tabs { display: flex; gap: 5px; margin-bottom: 25px; border-bottom: 2px solid #e2e8f0; flex-wrap: wrap; overflow-x: auto; }
+        .tab-btn { padding: 10px 15px; border: none; background: none; color: #4a5568; font-weight: 600; font-size: 12px; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.3s ease; white-space: nowrap; }
         .tab-btn:hover { color: #667eea; }
         .tab-btn.active { color: #667eea; border-bottom-color: #667eea; }
         .tab-content { display: none; animation: fadeIn 0.3s ease; }
         .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .result-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         .result-table th, .result-table td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
-        .result-table th { background: #f7fafc; color: #2d3748; font-weight: 600; }
-        .result-table td { color: #4a5568; }
+        .result-table th { background: #f7fafc; }
         .milestone-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 15px; }
         .milestone-card { background: #f7fafc; padding: 15px; border-radius: 10px; text-align: center; }
-        .milestone-card h3 { color: #667eea; margin: 0 0 8px 0; font-size: 14px; }
+        .milestone-card h3 { color: #667eea; margin: 0 0 8px 0; }
         .milestone-card .value { color: #2d3748; font-size: 20px; font-weight: 700; }
         .comparison-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 15px; }
         .comparison-card { background: #f7fafc; padding: 15px; border-radius: 10px; border-left: 4px solid #667eea; }
-        .comparison-card h3 { color: #2d3748; margin: 0 0 10px 0; font-size: 16px; }
-        .comparison-card .stat { margin: 8px 0; font-size: 13px; }
-        .stat-label { color: #718096; }
-        .stat-value { color: #2d3748; font-weight: 700; }
+        .comparison-card h3 { color: #2d3748; margin: 0 0 10px 0; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>💰 Simulateur EG Complet</h1>
         
-        <div class="tabs-container">
-            <div class="tabs" id="tabs">
-                <button class="tab-btn {% if use_case == 'uc1' %}active{% endif %}" onclick="switchTab(event, 'uc1')">📈 Gains X jours</button>
-                <button class="tab-btn {% if use_case == 'uc2' %}active{% endif %}" onclick="switchTab(event, 'uc2')">🎯 Objectif</button>
-                <button class="tab-btn {% if use_case == 'uc3' %}active{% endif %}" onclick="switchTab(event, 'uc3')">💼 Capital</button>
-                <button class="tab-btn {% if use_case == 'uc4' %}active{% endif %}" onclick="switchTab(event, 'uc4')">⚙️ Comparer</button>
-                <button class="tab-btn {% if use_case == 'uc5' %}active{% endif %}" onclick="switchTab(event, 'uc5')">📊 Progression</button>
-                <button class="tab-btn {% if use_case == 'uc6' %}active{% endif %}" onclick="switchTab(event, 'uc6')">⚡ Bonus</button>
-                <button class="tab-btn {% if use_case == 'uc7' %}active{% endif %}" onclick="switchTab(event, 'uc7')">🔢 Multiple</button>
-                <button class="tab-btn {% if use_case == 'uc8' %}active{% endif %}" onclick="switchTab(event, 'uc8')">🏆 Long terme</button>
-            </div>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab(event, 'uc1')">📈 Gains X jours</button>
+            <button class="tab-btn" onclick="switchTab(event, 'uc2')">🎯 Objectif</button>
+            <button class="tab-btn" onclick="switchTab(event, 'uc3')">💼 Capital</button>
+            <button class="tab-btn" onclick="switchTab(event, 'uc4')">⚙️ Comparer</button>
+            <button class="tab-btn" onclick="switchTab(event, 'uc5')">📊 Progression</button>
+            <button class="tab-btn" onclick="switchTab(event, 'uc6')">⚡ Bonus</button>
+            <button class="tab-btn" onclick="switchTab(event, 'uc7')">🔢 Multiple</button>
+            <button class="tab-btn" onclick="switchTab(event, 'uc8')">🏆 Long terme</button>
         </div>
         
-        <form method="post" id="simulatorForm" onsubmit="validateAndSubmit(event)">
-            <input type="hidden" id="use_case" name="use_case" value="{{ use_case }}">
-            
-            <!-- UC1: Gains en X jours -->
-            <div id="tab-uc1" class="tab-content {% if use_case == 'uc1' %}active{% endif %}">
-                <div class="form-group">
-                    <label>Capital de départ</label>
-                    <input type="number" name="uc1_capital" step="0.01" placeholder="e.g. 1000" value="1000">
-                </div>
-                <div class="form-group">
-                    <label>Nombre de jours</label>
-                    <input type="number" name="uc1_days" min="1" placeholder="e.g. 14" value="14">
-                </div>
-                <div class="form-group">
-                    <label>Statut agent</label>
-                    <select name="uc1_agent_level">
-                        <option value="LV0">LV0 (2 trades/jour)</option>
-                        <option value="LV1" selected>LV1 (3 trades/jour)</option>
-                        <option value="LV2">LV2 (4 trades/jour)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Trades bonus ?</label>
-                    <select name="uc1_has_bonus" onchange="toggleBonusField(event, 'uc1')">
-                        <option value="no" selected>Non</option>
-                        <option value="yes">Oui (+2 trades/jour)</option>
-                    </select>
-                </div>
-                <div id="uc1_bonus_group" class="form-group" style="display:none;">
-                    <label>Jours avec bonus</label>
-                    <input type="number" name="uc1_bonus_days" min="0" value="4">
-                </div>
-            </div>
-            
-            <!-- UC2: Atteindre objectif -->
-            <div id="tab-uc2" class="tab-content {% if use_case == 'uc2' %}active{% endif %}">
-                <div class="form-group">
-                    <label>Capital initial</label>
-                    <input type="number" name="uc2_capital" step="0.01" placeholder="e.g. 1000" value="1000">
-                </div>
-                <div class="form-group">
-                    <label>Objectif ($)</label>
-                    <input type="number" name="uc2_objective" step="0.01" placeholder="e.g. 2000" value="2000">
-                </div>
-                <div class="form-group">
-                    <label>Statut agent</label>
-                    <select name="uc2_agent_level">
-                        <option value="LV0">LV0 (2 trades/jour)</option>
-                        <option value="LV1" selected>LV1 (3 trades/jour)</option>
-                        <option value="LV2">LV2 (4 trades/jour)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Trades bonus ?</label>
-                    <select name="uc2_has_bonus" onchange="toggleBonusField(event, 'uc2')">
-                        <option value="no" selected>Non</option>
-                        <option value="yes">Oui</option>
-                    </select>
-                </div>
-                <div id="uc2_bonus_group" class="form-group" style="display:none;">
-                    <label>Jours avec bonus</label>
-                    <input type="number" name="uc2_bonus_days" min="0" value="0">
-                </div>
-            </div>
-            
-            <!-- UC3: Capital initial -->
-            <div id="tab-uc3" class="tab-content {% if use_case == 'uc3' %}active{% endif %}">
-                <div class="form-group">
-                    <label>Objectif ($)</label>
-                    <input type="number" name="uc3_objective" step="0.01" placeholder="e.g. 2000" value="2000">
-                </div>
-                <div class="form-group">
-                    <label>Nombre de jours</label>
-                    <input type="number" name="uc3_days" min="1" placeholder="e.g. 30" value="30">
-                </div>
-                <div class="form-group">
-                    <label>Statut agent</label>
-                    <select name="uc3_agent_level">
-                        <option value="LV0">LV0 (2 trades/jour)</option>
-                        <option value="LV1" selected>LV1 (3 trades/jour)</option>
-                        <option value="LV2">LV2 (4 trades/jour)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Trades bonus ?</label>
-                    <select name="uc3_has_bonus" onchange="toggleBonusField(event, 'uc3')">
-                        <option value="no" selected>Non</option>
-                        <option value="yes">Oui</option>
-                    </select>
-                </div>
-                <div id="uc3_bonus_group" class="form-group" style="display:none;">
-                    <label>Jours avec bonus</label>
-                    <input type="number" name="uc3_bonus_days" min="0" value="0">
-                </div>
-            </div>
-            
-            <!-- UC4: Comparaison statuts -->
-            <div id="tab-uc4" class="tab-content {% if use_case == 'uc4' %}active{% endif %}">
-                <div class="form-group">
-                    <label>Capital initial</label>
-                    <input type="number" name="uc4_capital" step="0.01" placeholder="e.g. 1000" value="1000">
-                </div>
-                <div class="form-group">
-                    <label>Nombre de jours</label>
-                    <input type="number" name="uc4_days" min="1" placeholder="e.g. 30" value="30">
-                </div>
-                <div class="form-group">
-                    <label>Trades bonus ?</label>
-                    <select name="uc4_has_bonus" onchange="toggleBonusField(event, 'uc4')">
-                        <option value="no" selected>Non</option>
-                        <option value="yes">Oui</option>
-                    </select>
-                </div>
-                <div id="uc4_bonus_group" class="form-group" style="display:none;">
-                    <label>Jours avec bonus</label>
-                    <input type="number" name="uc4_bonus_days" min="0" value="0">
-                </div>
-            </div>
-            
-            <!-- UC5: Progression jour par jour -->
-            <div id="tab-uc5" class="tab-content {% if use_case == 'uc5' %}active{% endif %}">
-                <div class="form-group">
-                    <label>Capital initial</label>
-                    <input type="number" name="uc5_capital" step="0.01" placeholder="e.g. 1000" value="1000">
-                </div>
-                <div class="form-group">
-                    <label>Nombre de jours</label>
-                    <input type="number" name="uc5_days" min="1" max="90" placeholder="e.g. 14" value="14">
-                </div>
-                <div class="form-group">
-                    <label>Statut agent</label>
-                    <select name="uc5_agent_level">
-                        <option value="LV0">LV0 (2 trades/jour)</option>
-                        <option value="LV1" selected>LV1 (3 trades/jour)</option>
-                        <option value="LV2">LV2 (4 trades/jour)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Trades bonus ?</label>
-                    <select name="uc5_has_bonus" onchange="toggleBonusField(event, 'uc5')">
-                        <option value="no" selected>Non</option>
-                        <option value="yes">Oui</option>
-                    </select>
-                </div>
-                <div id="uc5_bonus_group" class="form-group" style="display:none;">
-                    <label>Jours avec bonus</label>
-                    <input type="number" name="uc5_bonus_days" min="0" value="4">
-                </div>
-            </div>
-            
-            <!-- UC6: Impact bonus -->
-            <div id="tab-uc6" class="tab-content {% if use_case == 'uc6' %}active{% endif %}">
-                <div class="form-group">
-                    <label>Capital initial</label>
-                    <input type="number" name="uc6_capital" step="0.01" placeholder="e.g. 1000" value="1000">
-                </div>
-                <div class="form-group">
-                    <label>Nombre de jours</label>
-                    <input type="number" name="uc6_days" min="1" placeholder="e.g. 30" value="30">
-                </div>
-                <div class="form-group">
-                    <label>Statut agent</label>
-                    <select name="uc6_agent_level">
-                        <option value="LV0">LV0 (2 trades/jour)</option>
-                        <option value="LV1" selected>LV1 (3 trades/jour)</option>
-                        <option value="LV2">LV2 (4 trades/jour)</option>
-                    </select>
-                </div>
-            </div>
-            
-            <!-- UC7: Multiple -->
-            <div id="tab-uc7" class="tab-content {% if use_case == 'uc7' %}active{% endif %}">
-                <div class="form-group">
-                    <label>Capital initial</label>
-                    <input type="number" name="uc7_capital" step="0.01" placeholder="e.g. 1000" value="1000">
-                </div>
-                <div class="form-group">
-                    <label>Multiple (x2, x3, x5, x10...)</label>
-                    <input type="number" name="uc7_multiple" min="1.5" step="0.5" placeholder="e.g. 2" value="2">
-                </div>
-                <div class="form-group">
-                    <label>Statut agent</label>
-                    <select name="uc7_agent_level">
-                        <option value="LV0">LV0 (2 trades/jour)</option>
-                        <option value="LV1" selected>LV1 (3 trades/jour)</option>
-                        <option value="LV2">LV2 (4 trades/jour)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Trades bonus ?</label>
-                    <select name="uc7_has_bonus" onchange="toggleBonusField(event, 'uc7')">
-                        <option value="no" selected>Non</option>
-                        <option value="yes">Oui</option>
-                    </select>
-                </div>
-                <div id="uc7_bonus_group" class="form-group" style="display:none;">
-                    <label>Jours avec bonus</label>
-                    <input type="number" name="uc7_bonus_days" min="0" value="0">
-                </div>
-            </div>
-            
-            <!-- UC8: Long terme -->
-            <div id="tab-uc8" class="tab-content {% if use_case == 'uc8' %}active{% endif %}">
-                <div class="form-group">
-                    <label>Capital initial</label>
-                    <input type="number" name="uc8_capital" step="0.01" placeholder="e.g. 1000" value="1000">
-                </div>
-                <div class="form-group">
-                    <label>Statut agent</label>
-                    <select name="uc8_agent_level">
-                        <option value="LV0">LV0 (2 trades/jour)</option>
-                        <option value="LV1" selected>LV1 (3 trades/jour)</option>
-                        <option value="LV2">LV2 (4 trades/jour)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Trades bonus ?</label>
-                    <select name="uc8_has_bonus" onchange="toggleBonusField(event, 'uc8')">
-                        <option value="no" selected>Non</option>
-                        <option value="yes">Oui (+2 trades tous les jours)</option>
-                    </select>
-                </div>
-                <div id="uc8_bonus_group" class="form-group" style="display:none;">
-                    <label>Jours avec bonus (max 1825 pour 5ans)</label>
-                    <input type="number" name="uc8_bonus_days" min="0" value="1825">
-                </div>
-            </div>
-            
+        <form method="post" id="simulatorForm" onsubmit="return submitForm(event)">
+            <input type="hidden" id="use_case" name="use_case" value="uc1">
+            <div id="form-inputs"></div>
             <button type="submit">📊 Calculer</button>
         </form>
         
-        <!-- Résultats -->
         {% if result is not none %}
             <div class="result">
                 {% if result.type == 'uc1' %}
                     <h2>${{ result.final_capital }}</h2>
                     <p>Capital final</p>
-                    <div class="result-summary">
-                        <p>💵 Gain: ${{ result.gain }}</p>
-                    </div>
+                    <p style="color: #2d7a2d; margin-top: 10px;">💵 Gain: ${{ result.gain }}</p>
                 
                 {% elif result.type == 'uc2' %}
                     {% if result.days_needed %}
                         <h2>{{ result.days_needed }} jour{{ 's' if result.days_needed > 1 else '' }}</h2>
                         <p>Pour atteindre ${{ result.objective }}</p>
-                        <div class="result-summary">
-                            <p>Soit environ {{ (result.days_needed / 7)|int }} semaines</p>
-                        </div>
                     {% else %}
                         <h2>Non atteint</h2>
                         <p>Dans moins d'1 an</p>
@@ -309,28 +71,20 @@
                 
                 {% elif result.type == 'uc3' %}
                     <h2>${{ result.initial_capital }}</h2>
-                    <p>Capital initial pour atteindre ${{ result.objective }} en {{ result.days }} jours</p>
+                    <p>Capital initial pour ${{ result.objective }} en {{ result.days }} jours</p>
                 
                 {% elif result.type == 'uc4' %}
-                    <h3 style="color: #667eea; margin-top: 0;">Comparaison sur {{ result.days }} jours avec ${{ result.capital }}</h3>
-                    <div class="comparison-grid">
-                        {% for level, data in result.comparisons.items() %}
-                            <div class="comparison-card">
-                                <h3>{{ level }}</h3>
-                                <div class="stat">
-                                    <span class="stat-label">Capital final:</span><br>
-                                    <span class="stat-value">${{ data.final_capital }}</span>
+                    <div style="margin-top: 20px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px;">
+                            {% for level, data in result.comparisons.items() %}
+                                <div style="background: #f7fafc; padding: 15px; border-radius: 10px; border-left: 4px solid #667eea;">
+                                    <h3 style="color: #2d3748; margin: 0 0 10px 0;">{{ level }}</h3>
+                                    <p style="margin: 5px 0; font-size: 12px;"><strong>Final:</strong> ${{ data.final_capital }}</p>
+                                    <p style="margin: 5px 0; font-size: 12px; color: #2d7a2d;"><strong>Gain:</strong> ${{ data.gain }}</p>
+                                    <p style="margin: 5px 0; font-size: 12px;"><strong>ROI:</strong> {{ data.roi }}%</p>
                                 </div>
-                                <div class="stat">
-                                    <span class="stat-label">Gain:</span><br>
-                                    <span class="stat-value">${{ data.gain }}</span>
-                                </div>
-                                <div class="stat">
-                                    <span class="stat-label">ROI:</span><br>
-                                    <span class="stat-value">{{ data.roi }}%</span>
-                                </div>
-                            </div>
-                        {% endfor %}
+                            {% endfor %}
+                        </div>
                     </div>
                 
                 {% elif result.type == 'uc5' %}
@@ -340,7 +94,7 @@
                             <tr>
                                 <th>Jour</th>
                                 <th>Capital</th>
-                                <th>Gain du jour</th>
+                                <th>Gain %</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -355,19 +109,15 @@
                     </table>
                 
                 {% elif result.type == 'uc6' %}
-                    <h3 style="color: #667eea; margin-top: 0;">Impact du bonus sur {{ result.days }} jours</h3>
-                    <table class="result-table">
-                        <tr>
-                            <th>Scénario</th>
-                            <th>Capital final</th>
-                        </tr>
+                    <h3 style="color: #667eea;">Impact du bonus</h3>
+                    <table class="result-table" style="margin-top: 15px;">
                         <tr>
                             <td>Sans bonus</td>
-                            <td>${{ result.impact.without_bonus }}</td>
+                            <td style="font-weight: bold;">${{ result.impact.without_bonus }}</td>
                         </tr>
                         <tr>
                             <td>Avec bonus</td>
-                            <td>${{ result.impact.with_bonus }}</td>
+                            <td style="font-weight: bold; color: #2d7a2d;">${{ result.impact.with_bonus }}</td>
                         </tr>
                         <tr style="background: #f7fafc; font-weight: bold;">
                             <td>Différence</td>
@@ -378,13 +128,10 @@
                 {% elif result.type == 'uc7' %}
                     {% if result.days_needed %}
                         <h2>{{ result.days_needed }} jour{{ 's' if result.days_needed > 1 else '' }}</h2>
-                        <p>Pour multiplier ${{ result.capital }} par {{ result.multiple }}x jusqu'à ${{ result.objective }}</p>
-                        <div class="result-summary">
-                            <p>Soit environ {{ (result.days_needed / 7)|int }} semaines</p>
-                        </div>
+                        <p>Pour x{{ result.multiple }} jusqu'à ${{ result.objective }}</p>
                     {% else %}
                         <h2>Non atteint</h2>
-                        <p>Le multiple x{{ result.multiple }} ne peut pas être atteint dans 1 an</p>
+                        <p>x{{ result.multiple }} en moins d'1 an</p>
                     {% endif %}
                 
                 {% elif result.type == 'uc8' %}
@@ -394,7 +141,6 @@
                             <div class="milestone-card">
                                 <h3>{{ period }}</h3>
                                 <div class="value">${{ data.capital }}</div>
-                                <p style="margin: 8px 0 0 0; color: #2d7a2d; font-size: 12px;">+${{ data.gain }}</p>
                             </div>
                         {% endfor %}
                     </div>
@@ -405,68 +151,196 @@
     
     <script>
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/static/service-worker.js').catch(e => console.log('SW error:', e));
+        navigator.serviceWorker.register('/static/service-worker.js').catch(console.log);
     }
     
-    function switchTab(e, tabName) {
+    const useCaseConfigs = {
+        uc1: {
+            title: '📈 Gains en X jours',
+            fields: [
+                { name: 'capital', label: 'Capital de départ', type: 'number', step: '0.01', placeholder: '1000' },
+                { name: 'days', label: 'Nombre de jours', type: 'number', placeholder: '14' },
+                { name: 'agent_level', label: 'Statut agent', type: 'select', options: { 'LV0': 'LV0 (2)', 'LV1': 'LV1 (3)', 'LV2': 'LV2 (4)' } },
+                { name: 'has_bonus', label: 'Trades bonus ?', type: 'select', options: { 'no': 'Non', 'yes': 'Oui' }, onchange: 'toggleBonus' },
+                { name: 'bonus_days', label: 'Jours bonus', type: 'number', placeholder: '4', dependsOn: 'has_bonus', dependsValue: 'yes' }
+            ]
+        },
+        uc2: {
+            title: '🎯 Atteindre objectif',
+            fields: [
+                { name: 'capital', label: 'Capital initial', type: 'number', step: '0.01', placeholder: '1000' },
+                { name: 'objective', label: 'Objectif ($)', type: 'number', step: '0.01', placeholder: '2000' },
+                { name: 'agent_level', label: 'Statut agent', type: 'select', options: { 'LV0': 'LV0 (2)', 'LV1': 'LV1 (3)', 'LV2': 'LV2 (4)' } },
+                { name: 'has_bonus', label: 'Trades bonus ?', type: 'select', options: { 'no': 'Non', 'yes': 'Oui' }, onchange: 'toggleBonus' },
+                { name: 'bonus_days', label: 'Jours bonus', type: 'number', placeholder: '0', dependsOn: 'has_bonus', dependsValue: 'yes' }
+            ]
+        },
+        uc3: {
+            title: '💼 Capital initial',
+            fields: [
+                { name: 'objective', label: 'Objectif ($)', type: 'number', step: '0.01', placeholder: '2000' },
+                { name: 'days', label: 'Nombre de jours', type: 'number', placeholder: '30' },
+                { name: 'agent_level', label: 'Statut agent', type: 'select', options: { 'LV0': 'LV0 (2)', 'LV1': 'LV1 (3)', 'LV2': 'LV2 (4)' } },
+                { name: 'has_bonus', label: 'Trades bonus ?', type: 'select', options: { 'no': 'Non', 'yes': 'Oui' }, onchange: 'toggleBonus' },
+                { name: 'bonus_days', label: 'Jours bonus', type: 'number', placeholder: '0', dependsOn: 'has_bonus', dependsValue: 'yes' }
+            ]
+        },
+        uc4: {
+            title: '⚙️ Comparer niveaux',
+            fields: [
+                { name: 'capital', label: 'Capital initial', type: 'number', step: '0.01', placeholder: '1000' },
+                { name: 'days', label: 'Nombre de jours', type: 'number', placeholder: '30' },
+                { name: 'has_bonus', label: 'Trades bonus ?', type: 'select', options: { 'no': 'Non', 'yes': 'Oui' }, onchange: 'toggleBonus' },
+                { name: 'bonus_days', label: 'Jours bonus', type: 'number', placeholder: '0', dependsOn: 'has_bonus', dependsValue: 'yes' },
+                { name: 'agent_level', label: 'Statut (inutilisé)', type: 'hidden' }
+            ]
+        },
+        uc5: {
+            title: '📊 Progression',
+            fields: [
+                { name: 'capital', label: 'Capital initial', type: 'number', step: '0.01', placeholder: '1000' },
+                { name: 'days', label: 'Nombre de jours (max 30)', type: 'number', placeholder: '14', max: '30' },
+                { name: 'agent_level', label: 'Statut agent', type: 'select', options: { 'LV0': 'LV0 (2)', 'LV1': 'LV1 (3)', 'LV2': 'LV2 (4)' } },
+                { name: 'has_bonus', label: 'Trades bonus ?', type: 'select', options: { 'no': 'Non', 'yes': 'Oui' }, onchange: 'toggleBonus' },
+                { name: 'bonus_days', label: 'Jours bonus', type: 'number', placeholder: '4', dependsOn: 'has_bonus', dependsValue: 'yes' }
+            ]
+        },
+        uc6: {
+            title: '⚡ Impact bonus',
+            fields: [
+                { name: 'capital', label: 'Capital initial', type: 'number', step: '0.01', placeholder: '1000' },
+                { name: 'days', label: 'Nombre de jours', type: 'number', placeholder: '30' },
+                { name: 'agent_level', label: 'Statut agent', type: 'select', options: { 'LV0': 'LV0 (2)', 'LV1': 'LV1 (3)', 'LV2': 'LV2 (4)' } },
+                { name: 'has_bonus', label: 'Tokens bonus', type: 'hidden', value: 'no' },
+                { name: 'bonus_days', label: 'Bonus days', type: 'hidden', value: '0' }
+            ]
+        },
+        uc7: {
+            title: '🔢 Multiple',
+            fields: [
+                { name: 'capital', label: 'Capital initial', type: 'number', step: '0.01', placeholder: '1000' },
+                { name: 'multiple', label: 'Multiple (x2, x3...)', type: 'number', step: '0.5', placeholder: '2' },
+                { name: 'agent_level', label: 'Statut agent', type: 'select', options: { 'LV0': 'LV0 (2)', 'LV1': 'LV1 (3)', 'LV2': 'LV2 (4)' } },
+                { name: 'has_bonus', label: 'Trades bonus ?', type: 'select', options: { 'no': 'Non', 'yes': 'Oui' }, onchange: 'toggleBonus' },
+                { name: 'bonus_days', label: 'Jours bonus', type: 'number', placeholder: '0', dependsOn: 'has_bonus', dependsValue: 'yes' }
+            ]
+        },
+        uc8: {
+            title: '🏆 Long terme',
+            fields: [
+                { name: 'capital', label: 'Capital initial', type: 'number', step: '0.01', placeholder: '1000' },
+                { name: 'agent_level', label: 'Statut agent', type: 'select', options: { 'LV0': 'LV0 (2)', 'LV1': 'LV1 (3)', 'LV2': 'LV2 (4)' } },
+                { name: 'has_bonus', label: 'Trades bonus partout ?', type: 'select', options: { 'no': 'Non', 'yes': 'Oui (5 ans)' } },
+                { name: 'bonus_days', label: 'Bonus days', type: 'hidden', value: '1825' },
+                { name: 'days', label: 'Days', type: 'hidden', value: '1' }
+            ]
+        }
+    };
+    
+    function renderForm(useCaseId) {
+        const config = useCaseConfigs[useCaseId];
+        const container = document.getElementById('form-inputs');
+        container.innerHTML = '';
+        
+        config.fields.forEach(field => {
+            if (field.type === 'hidden') return;
+            
+            const group = document.createElement('div');
+            group.className = 'form-group';
+            if (field.dependsOn) {
+                group.style.display = 'none';
+                group.id = 'dep-' + field.name;
+            }
+            
+            const label = document.createElement('label');
+            label.textContent = field.label;
+            group.appendChild(label);
+            
+            if (field.type === 'select') {
+                const select = document.createElement('select');
+                select.name = field.name;
+                select.onchange = function() {
+                    toggleDependents(useCaseId, field.name, this.value);
+                    if (field.onchange === 'toggleBonus') toggleBonus();
+                };
+                Object.entries(field.options).forEach(([val, label]) => {
+                    const opt = document.createElement('option');
+                    opt.value = val;
+                    opt.textContent = label;
+                    if (val === 'LV1' || val === 'no') opt.selected = true;
+                    select.appendChild(opt);
+                });
+                group.appendChild(select);
+            } else {
+                const input = document.createElement('input');
+                input.name = field.name;
+                input.type = field.type;
+                if (field.step) input.step = field.step;
+                if (field.placeholder) input.placeholder = field.placeholder;
+                if (field.max) input.max = field.max;
+                group.appendChild(input);
+            }
+            
+            container.appendChild(group);
+        });
+    }
+    
+    function toggleDependents(useCaseId, fieldName, value) {
+        const config = useCaseConfigs[useCaseId];
+        config.fields.forEach(field => {
+            if (field.dependsOn === fieldName) {
+                const el = document.getElementById('dep-' + field.name);
+                if (el) {
+                    el.style.display = (value === field.dependsValue) ? 'flex' : 'none';
+                }
+            }
+        });
+    }
+    
+    function toggleBonus() {
+        const useCaseId = document.getElementById('use_case').value;
+        const hasBonusSelect = document.querySelector('select[name="has_bonus"]');
+        if (hasBonusSelect) {
+            toggleDependents(useCaseId, 'has_bonus', hasBonusSelect.value);
+        }
+    }
+    
+    function switchTab(e, tabId) {
         e.preventDefault();
-        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-        document.getElementById('tab-' + tabName).classList.add('active');
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         e.target.classList.add('active');
-        document.getElementById('use_case').value = tabName;
+        document.getElementById('use_case').value = tabId;
+        renderForm(tabId);
     }
     
-    function toggleBonusField(e, prefix) {
-        const group = document.getElementById(prefix + '_bonus_group');
-        if (e.target.value === 'yes') {
-            group.style.display = 'block';
-        } else {
-            group.style.display = 'none';
-        }
-    }
-    
-    function validateAndSubmit(e) {
-        const useCase = document.getElementById('use_case').value;
-        let isValid = true;
-        
-        const inputs = document.querySelectorAll('#tab-' + useCase + ' input[type="number"]');
-        inputs.forEach(input => {
-            if (!input.value || parseFloat(input.value) <= 0) {
-                alert('Veuillez remplir tous les champs avec des valeurs positives');
-                isValid = false;
-            }
-        });
-        
-        if (!isValid) {
-            e.preventDefault();
-        } else {
-            remapFormFields(useCase);
-        }
-    }
-    
-    function remapFormFields(useCase) {
+    function submitForm(e) {
+        e.preventDefault();
         const form = document.getElementById('simulatorForm');
-        const prefix = useCase + '_';
-        const inputs = form.querySelectorAll('input, select');
+        const useCaseId = document.getElementById('use_case').value;
+        const config = useCaseConfigs[useCaseId];
         
-        inputs.forEach(input => {
-            if (input.name.startsWith(prefix)) {
-                input.name = input.name.replace(prefix, '');
-            } else if (input.name.startsWith('uc') && !input.name.startsWith(prefix)) {
-                input.disabled = true;
+        const formData = new FormData();
+        formData.append('use_case', useCaseId);
+        
+        config.fields.forEach(field => {
+            let input;
+            if (field.type === 'hidden') {
+                input = document.createElement('input');
+                input.value = field.value;
             } else {
-                input.disabled = false;
+                input = form.querySelector('[name="' + field.name + '"]');
+            }
+            if (input) {
+                formData.append(field.name, input.value);
             }
         });
+        
+        const params = new URLSearchParams(formData);
+        window.location = window.location.pathname + '?' + params.toString();
+        form.submit();
     }
     
-    window.onload = function() {
-        ['uc1', 'uc2', 'uc3', 'uc4', 'uc5', 'uc6', 'uc7', 'uc8'].forEach(uc => {
-            const select = document.querySelector('#tab-' + uc + ' select[name="' + uc + '_has_bonus"]');
-            if (select) toggleBonusField({target: select}, uc);
-        });
-    };
+    window.addEventListener('load', () => renderForm('uc1'));
     </script>
 </body>
 </html>
