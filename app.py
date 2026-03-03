@@ -6,6 +6,8 @@ app = Flask(__name__)
 @app.route('/', methods=['GET', 'POST'])
 def index():
     result = None
+    capital = 0
+    
     if request.method == 'POST':
         capital = float(request.form.get('capital', 1000))
         days = int(request.form.get('days', 1))
@@ -28,7 +30,7 @@ def index():
             daily_gain = daily_trades * 0.65 / 100
             final_capital *= (1 + daily_gain)
         result = round(final_capital, 2)
-    return render_template('index.html', result=result)
+    return render_template('index.html', result=result, capital=capital)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5001))
