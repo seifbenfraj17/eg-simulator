@@ -16,49 +16,110 @@
 <body>
     <div class="container">
         <h1>💰 Simulateur EG Seif</h1>
-        <form method="post">
-            <div class="form-group">
-                <label for="capital">Capital de départ</label>
-                <input type="number" id="capital" name="capital" step="0.01" placeholder="e.g. 1000" required>
+        
+        <!-- Onglets -->
+        <div class="tabs">
+            <button class="tab-btn {% if use_case == 'uc1' %}active{% endif %}" onclick="switchTab('uc1')">📈 Gains en X jours</button>
+            <button class="tab-btn {% if use_case == 'uc2' %}active{% endif %}" onclick="switchTab('uc2')">🎯 Atteindre objectif</button>
+        </div>
+        
+        <form method="post" id="simulatorForm">
+            <input type="hidden" id="use_case" name="use_case" value="{{ use_case }}">
+            
+            <!-- Use Case 1 : Calculer gains après X jours -->
+            <div id="tab-uc1" class="tab-content {% if use_case != 'uc1' %}hidden{% endif %}">
+                <div class="form-group">
+                    <label for="uc1_capital">Capital de départ</label>
+                    <input type="number" id="uc1_capital" name="capital" step="0.01" placeholder="e.g. 1000" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="uc1_days">Nombre de jours</label>
+                    <input type="number" id="uc1_days" name="days" min="1" placeholder="e.g. 14">
+                </div>
+                
+                <div class="form-group">
+                    <label for="uc1_agent_level">Statut agent</label>
+                    <select id="uc1_agent_level" name="agent_level" required>
+                        <option value="LV0">LV0 - Aucun bonus (2 trades/jour)</option>
+                        <option value="LV1">LV1 - +1 trade/jour (3 trades/jour)</option>
+                        <option value="LV2">LV2 - +2 trades/jour (4 trades/jour)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="uc1_has_bonus">Trades bonus supplémentaires ?</label>
+                    <select id="uc1_has_bonus" name="has_bonus" required onchange="toggleBonusDays('uc1')">
+                        <option value="no">Non</option>
+                        <option value="yes">Oui (+2 trades/jour)</option>
+                    </select>
+                </div>
+                
+                <div id="uc1_bonus_days_group" class="form-group" style="display:none;">
+                    <label for="uc1_bonus_days">Nombre de jours avec bonus</label>
+                    <input type="number" id="uc1_bonus_days" name="bonus_days" min="0" value="0">
+                </div>
             </div>
             
-            <div class="form-group">
-                <label for="days">Nombre de jours</label>
-                <input type="number" id="days" name="days" min="1" placeholder="e.g. 14" required>
+            <!-- Use Case 2 : Calculer jours pour atteindre objectif -->
+            <div id="tab-uc2" class="tab-content {% if use_case != 'uc2' %}hidden{% endif %}">
+                <div class="form-group">
+                    <label for="uc2_capital">Capital de départ</label>
+                    <input type="number" id="uc2_capital" name="capital" step="0.01" placeholder="e.g. 1000" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="uc2_objective">Objectif (capital cible)</label>
+                    <input type="number" id="uc2_objective" name="objective" step="0.01" placeholder="e.g. 2000" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="uc2_agent_level">Statut agent</label>
+                    <select id="uc2_agent_level" name="agent_level" required>
+                        <option value="LV0">LV0 - Aucun bonus (2 trades/jour)</option>
+                        <option value="LV1">LV1 - +1 trade/jour (3 trades/jour)</option>
+                        <option value="LV2">LV2 - +2 trades/jour (4 trades/jour)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="uc2_has_bonus">Trades bonus supplémentaires ?</label>
+                    <select id="uc2_has_bonus" name="has_bonus" required onchange="toggleBonusDays('uc2')">
+                        <option value="no">Non</option>
+                        <option value="yes">Oui (+2 trades/jour)</option>
+                    </select>
+                </div>
+                
+                <div id="uc2_bonus_days_group" class="form-group" style="display:none;">
+                    <label for="uc2_bonus_days">Nombre de jours avec bonus</label>
+                    <input type="number" id="uc2_bonus_days" name="bonus_days" min="0" value="0">
+                </div>
             </div>
             
-            <div class="form-group">
-                <label for="agent_level">Statut agent</label>
-                <select id="agent_level" name="agent_level" required>
-                    <option value="LV0">LV0 - Aucun bonus (2 trades/jour)</option>
-                    <option value="LV1">LV1 - +1 trade/jour (3 trades/jour)</option>
-                    <option value="LV2">LV2 - +2 trades/jour (4 trades/jour)</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="has_bonus">Trades bonus supplémentaires ?</label>
-                <select id="has_bonus" name="has_bonus" required onchange="toggleBonusDays()">
-                    <option value="no">Non</option>
-                    <option value="yes">Oui (+2 trades/jour)</option>
-                </select>
-            </div>
-            
-            <div id="bonus_days_group" class="form-group" style="display:none;">
-                <label for="bonus_days">Nombre de jours avec bonus</label>
-                <input type="number" id="bonus_days" name="bonus_days" min="0" value="0">
-            </div>
-            
-            <button type="submit">📊 Calculer mes gains</button>
+            <button type="submit">📊 Calculer</button>
         </form>
         
+        <!-- Résultats -->
         {% if result is not none %}
             <div class="result">
-                <h2>${{ result }}</h2>
-                <p>Capital final estimé</p>
-                <div class="result-summary">
-                    <p>💵 Gain: ${{ "%.2f"|format(result - capital) }}</p>
-                </div>
+                {% if result.type == 'uc1' %}
+                    <h2>${{ result.final_capital }}</h2>
+                    <p>Capital final estimé</p>
+                    <div class="result-summary">
+                        <p>💵 Gain: ${{ result.gain }}</p>
+                    </div>
+                {% elif result.type == 'uc2' %}
+                    {% if result.days_needed %}
+                        <h2>{{ result.days_needed }} jour{{ 's' if result.days_needed > 1 else '' }}</h2>
+                        <p>Pour atteindre votre objectif de ${{ result.objective }}</p>
+                        <div class="result-summary">
+                            <p>💰 Capital final: ${{ result.final_capital }}</p>
+                        </div>
+                    {% else %}
+                        <h2>Non atteint</h2>
+                        <p>L'objectif de ${{ result.objective }} ne peut pas être atteint dans 1 année</p>
+                    {% endif %}
+                {% endif %}
             </div>
         {% endif %}
     </div>
@@ -74,16 +135,42 @@
             });
     }
     
-    function toggleBonusDays() {
-        var select = document.getElementById('has_bonus');
-        var group = document.getElementById('bonus_days_group');
+    function switchTab(tabName) {
+        // Masquer tous les onglets
+        document.getElementById('tab-uc1').classList.add('hidden');
+        document.getElementById('tab-uc2').classList.add('hidden');
+        
+        // Afficher l'onglet sélectionné
+        document.getElementById('tab-' + tabName).classList.remove('hidden');
+        
+        // Mettre à jour le bouton actif
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        // Mettre à jour le champ caché
+        document.getElementById('use_case').value = tabName;
+        
+        // Ajouter le champ 'days' ou 'objective' selon le tab si absent
+        let form = document.getElementById('simulatorForm');
+        if (tabName === 'uc1' && !form.querySelector('input[name="days"]')) {
+            form.querySelector('input[name="days"]').value = '14';
+        }
+    }
+    
+    function toggleBonusDays(prefix) {
+        var select = document.getElementById(prefix + '_has_bonus');
+        var group = document.getElementById(prefix + '_bonus_days_group');
         if (select.value === 'yes') {
             group.style.display = 'flex';
         } else {
             group.style.display = 'none';
         }
     }
-    window.onload = function() { toggleBonusDays(); };
+    
+    window.onload = function() { 
+        toggleBonusDays('uc1');
+        toggleBonusDays('uc2');
+    };
     </script>
 </body>
 </html>
