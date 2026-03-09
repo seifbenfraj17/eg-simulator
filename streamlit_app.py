@@ -386,18 +386,20 @@ with tab1:
         bonus1 = st.number_input("Jours de bonus", min_value=0, value=0, key="uc1_bonus")
     
     if st.button("Calculer gains", key="btn1"):
-        trades = 2 + (1 if level1 == "LV1" else 2 if level1 == "LV2" else 0)
+        trades = 3 + (1 if level1 == "LV1" else 2 if level1 == "LV2" else 0)
         final = calculate_capital_after_days(cap1, days1, trades, bonus1)
         gain = final - cap1
         roi = (gain / cap1) * 100
         
-        col1, col2, col3 = st.columns(3)
+        col1, col2, col3, col4 = st.columns(4)
         with col1:
             st.metric("💵 Capital final", f"${final:.2f}", f"+${gain:.2f}")
         with col2:
             st.metric("📊 ROI", f"{roi:.2f}%")
         with col3:
             st.metric("📈 Revenus", f"${gain:.2f}")
+        with col4:
+            st.metric("🎯 Trades/jour", f"{trades}")
 
 # ============= TAB 2: ATTEINDRE OBJECTIF =============
 with tab2:
@@ -414,7 +416,7 @@ with tab2:
         bonus2 = st.number_input("Jours de bonus", min_value=0, value=0, key="uc2_bonus")
     
     if st.button("Calculer", key="btn2"):
-        trades = 2 + (1 if level2 == "LV1" else 2 if level2 == "LV2" else 0)
+        trades = 3 + (1 if level2 == "LV1" else 2 if level2 == "LV2" else 0)
         days_needed = calculate_days_to_objective(cap2, obj2, trades, bonus2)
         
         if days_needed:
@@ -444,7 +446,7 @@ with tab3:
         bonus3 = st.number_input("Jours de bonus", min_value=0, value=0, key="uc3_bonus")
     
     if st.button("Calculer", key="btn3"):
-        trades = 2 + (1 if level3 == "LV1" else 2 if level3 == "LV2" else 0)
+        trades = 3 + (1 if level3 == "LV1" else 2 if level3 == "LV2" else 0)
         initial = calculate_initial_capital(obj3, days3, trades, bonus3)
         
         col1, col2, col3 = st.columns(3)
@@ -493,7 +495,7 @@ with tab5:
         bonus5 = st.number_input("Jours de bonus", min_value=0, value=0, key="uc5_bonus")
     
     if st.button("Afficher progression", key="btn5"):
-        trades = 2 + (1 if level5 == "LV1" else 2 if level5 == "LV2" else 0)
+        trades = 3 + (1 if level5 == "LV1" else 2 if level5 == "LV2" else 0)
         progression = get_day_by_day_progression(cap5, days5, trades, bonus5)
         
         df = pd.DataFrame(progression)
@@ -530,7 +532,7 @@ with tab6:
         level6 = st.selectbox("Niveau agent", ["LV0", "LV1", "LV2"], key="uc6_level")
     
     if st.button("Analyser", key="btn6"):
-        trades = 2 + (1 if level6 == "LV1" else 2 if level6 == "LV2" else 0)
+        trades = 3 + (1 if level6 == "LV1" else 2 if level6 == "LV2" else 0)
         impact = calculate_bonus_impact(cap6, days6, trades)
         
         col1, col2, col3, col4 = st.columns(4)
@@ -558,7 +560,7 @@ with tab7:
         bonus7 = st.number_input("Jours de bonus", min_value=0, value=0, key="uc7_bonus")
     
     if st.button("Calculer", key="btn7"):
-        trades = 2 + (1 if level7 == "LV1" else 2 if level7 == "LV2" else 0)
+        trades = 3 + (1 if level7 == "LV1" else 2 if level7 == "LV2" else 0)
         days_needed = calculate_multiple_days(cap7, mult7, trades, bonus7)
         objective = cap7 * mult7
         
@@ -587,7 +589,7 @@ with tab8:
         bonus8 = st.number_input("Jours de bonus", min_value=0, value=0, key="uc8_bonus")
     
     if st.button("Afficher prévisions", key="btn8"):
-        trades = 2 + (1 if level8 == "LV1" else 2 if level8 == "LV2" else 0)
+        trades = 3 + (1 if level8 == "LV1" else 2 if level8 == "LV2" else 0)
         milestones = get_long_term_milestones(cap8, trades, bonus8)
         
         col1, col2, col3, col4 = st.columns(4)
@@ -612,7 +614,7 @@ with tab9:
         bonus9 = st.number_input("Jours de bonus", min_value=0, value=0, key="uc9_bonus")
     
     if st.button("Calculer turnover", key="btn9"):
-        trades = 2 + (1 if level9 == "LV1" else 2 if level9 == "LV2" else 0)
+        trades = 3 + (1 if level9 == "LV1" else 2 if level9 == "LV2" else 0)
         days_needed = calculate_turnover_days(balance9, vol_remain9, trades, bonus9)
         
         daily_volume = balance9 * (trades * 0.01)

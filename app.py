@@ -147,7 +147,7 @@ def index():
             has_bonus = request.form.get('has_bonus', 'no')
             bonus_days = int(request.form.get('bonus_days', 0)) if request.form.get('bonus_days') else 0
             
-            trades_per_day = 2
+            trades_per_day = 3
             if agent_level == 'LV1':
                 trades_per_day += 1
             elif agent_level == 'LV2':
