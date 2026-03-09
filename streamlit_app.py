@@ -278,12 +278,13 @@ def get_day_by_day_progression(initial_capital, days, trades_per_day, bonus_days
 
 def compare_agent_levels(initial_capital, days, bonus_days):
     levels = {}
-    for level_name, base_trades in [('LV0', 2), ('LV1', 3), ('LV2', 4)]:
+    for level_name, base_trades in [('LV0', 3), ('LV1', 4), ('LV2', 5)]:
         final_capital = calculate_capital_after_days(initial_capital, days, base_trades, bonus_days)
         levels[level_name] = {
             'Capital final': round(final_capital, 2),
             'Gain': round(final_capital - initial_capital, 2),
-            'ROI %': round((final_capital - initial_capital) / initial_capital * 100, 2)
+            'ROI %': round((final_capital - initial_capital) / initial_capital * 100, 2),
+            'Trades/jour': base_trades
         }
     return levels
 
@@ -381,12 +382,12 @@ with tab1:
     with col2:
         days1 = st.number_input("Nombre de jours", min_value=1, value=14, key="uc1_days")
     with col3:
-        level1 = st.selectbox("Niveau agent", ["LV0", "LV1", "LV2"], key="uc1_level")
+        level1 = st.selectbox("Niveau agent", ["LV0 (3)", "LV1 (4)", "LV2 (5)"], key="uc1_level")
     with col4:
         bonus1 = st.number_input("Jours de bonus", min_value=0, value=0, key="uc1_bonus")
     
     if st.button("Calculer gains", key="btn1"):
-        trades = 3 + (1 if level1 == "LV1" else 2 if level1 == "LV2" else 0)
+        trades = 3 + (1 if "LV1" in level1 else 2 if "LV2" in level1 else 0)
         final = calculate_capital_after_days(cap1, days1, trades, bonus1)
         gain = final - cap1
         roi = (gain / cap1) * 100
@@ -411,23 +412,25 @@ with tab2:
     with col2:
         obj2 = st.number_input("Objectif ($)", min_value=100, value=5000, key="uc2_obj")
     with col3:
-        level2 = st.selectbox("Niveau agent", ["LV0", "LV1", "LV2"], key="uc2_level")
+        level2 = st.selectbox("Niveau agent", ["LV0 (3)", "LV1 (4)", "LV2 (5)"], key="uc2_level")
     with col4:
         bonus2 = st.number_input("Jours de bonus", min_value=0, value=0, key="uc2_bonus")
     
     if st.button("Calculer", key="btn2"):
-        trades = 3 + (1 if level2 == "LV1" else 2 if level2 == "LV2" else 0)
+        trades = 3 + (1 if "LV1" in level2 else 2 if "LV2" in level2 else 0)
         days_needed = calculate_days_to_objective(cap2, obj2, trades, bonus2)
         
         if days_needed:
             final = calculate_capital_after_days(cap2, days_needed, trades, bonus2)
-            col1, col2, col3 = st.columns(3)
+            col1, col2, col3, col4 = st.columns(4)
             with col1:
                 st.metric("⏰ Jours requis", f"{days_needed} j")
             with col2:
                 st.metric("💵 Capital final", f"${final:.2f}")
             with col3:
                 st.metric("✅ Objectif", f"${obj2:.2f}")
+            with col4:
+                st.metric("🎯 Trades/jour", f"{trades}")
         else:
             st.error("❌ Impossible d'atteindre l'objectif en 365 jours")
 
@@ -441,21 +444,23 @@ with tab3:
     with col2:
         days3 = st.number_input("Nombre de jours", min_value=1, value=30, key="uc3_days")
     with col3:
-        level3 = st.selectbox("Niveau agent", ["LV0", "LV1", "LV2"], key="uc3_level")
+        level3 = st.selectbox("Niveau agent", ["LV0 (3)", "LV1 (4)", "LV2 (5)"], key="uc3_level")
     with col4:
         bonus3 = st.number_input("Jours de bonus", min_value=0, value=0, key="uc3_bonus")
     
     if st.button("Calculer", key="btn3"):
-        trades = 3 + (1 if level3 == "LV1" else 2 if level3 == "LV2" else 0)
+        trades = 3 + (1 if "LV1" in level3 else 2 if "LV2" in level3 else 0)
         initial = calculate_initial_capital(obj3, days3, trades, bonus3)
         
-        col1, col2, col3 = st.columns(3)
+        col1, col2, col3, col4 = st.columns(4)
         with col1:
             st.metric("🏦 Capital initial", f"${initial:.2f}")
         with col2:
             st.metric("📅 Durée", f"{days3} j")
         with col3:
             st.metric("🎯 Objectif", f"${obj3:.2f}")
+        with col4:
+            st.metric("🎯 Trades/jour", f"{trades}")
 
 # ============= TAB 4: COMPARER NIVEAUX =============
 with tab4:
@@ -479,6 +484,7 @@ with tab4:
                 st.metric("Capital final", f"${data['Capital final']:.2f}")
                 st.metric("Gain", f"${data['Gain']:.2f}")
                 st.metric("ROI", f"{data['ROI %']:.2f}%")
+                st.metric("🎯 Trades/jour", f"{data['Trades/jour']}")
 
 # ============= TAB 5: PROGRESSION =============
 with tab5:
@@ -490,13 +496,20 @@ with tab5:
     with col2:
         days5 = st.number_input("Nombre de jours", min_value=1, value=14, key="uc5_days")
     with col3:
-        level5 = st.selectbox("Niveau agent", ["LV0", "LV1", "LV2"], key="uc5_level")
+        level5 = st.selectbox("Niveau agent", ["LV0 (3)", "LV1 (4)", "LV2 (5)"], key="uc5_level")
     with col4:
         bonus5 = st.number_input("Jours de bonus", min_value=0, value=0, key="uc5_bonus")
     
     if st.button("Afficher progression", key="btn5"):
-        trades = 3 + (1 if level5 == "LV1" else 2 if level5 == "LV2" else 0)
+        trades = 3 + (1 if "LV1" in level5 else 2 if "LV2" in level5 else 0)
         progression = get_day_by_day_progression(cap5, days5, trades, bonus5)
+        
+        # Display trades info
+        col_info1, col_info2 = st.columns(2)
+        with col_info1:
+            st.metric("🎯 Trades/jour", f"{trades}")
+        with col_info2:
+            st.metric("📊 Jours", f"{days5}")
         
         df = pd.DataFrame(progression)
         st.dataframe(df, use_container_width=True, hide_index=True)
@@ -529,13 +542,13 @@ with tab6:
     with col2:
         days6 = st.number_input("Nombre de jours", min_value=1, value=30, key="uc6_days")
     with col3:
-        level6 = st.selectbox("Niveau agent", ["LV0", "LV1", "LV2"], key="uc6_level")
+        level6 = st.selectbox("Niveau agent", ["LV0 (3)", "LV1 (4)", "LV2 (5)"], key="uc6_level")
     
     if st.button("Analyser", key="btn6"):
-        trades = 3 + (1 if level6 == "LV1" else 2 if level6 == "LV2" else 0)
+        trades = 3 + (1 if "LV1" in level6 else 2 if "LV2" in level6 else 0)
         impact = calculate_bonus_impact(cap6, days6, trades)
         
-        col1, col2, col3, col4 = st.columns(4)
+        col1, col2, col3, col4, col5 = st.columns(5)
         with col1:
             st.metric("Sans bonus", f"${impact['Sans bonus']:.2f}")
         with col2:
@@ -544,6 +557,8 @@ with tab6:
             st.metric("Impact $", f"${impact['Impact $']:.2f}")
         with col4:
             st.metric("Impact %", f"{impact['Impact %']:.2f}%")
+        with col5:
+            st.metric("🎯 Trades/jour", f"{trades}")
 
 # ============= TAB 7: MULTIPLES =============
 with tab7:
@@ -555,24 +570,26 @@ with tab7:
     with col2:
         mult7 = st.number_input("Multiplicateur (x)", min_value=1.0, value=2.0, step=0.5, key="uc7_mult")
     with col3:
-        level7 = st.selectbox("Niveau agent", ["LV0", "LV1", "LV2"], key="uc7_level")
+        level7 = st.selectbox("Niveau agent", ["LV0 (3)", "LV1 (4)", "LV2 (5)"], key="uc7_level")
     with col4:
         bonus7 = st.number_input("Jours de bonus", min_value=0, value=0, key="uc7_bonus")
     
     if st.button("Calculer", key="btn7"):
-        trades = 3 + (1 if level7 == "LV1" else 2 if level7 == "LV2" else 0)
+        trades = 3 + (1 if "LV1" in level7 else 2 if "LV2" in level7 else 0)
         days_needed = calculate_multiple_days(cap7, mult7, trades, bonus7)
         objective = cap7 * mult7
         
         if days_needed:
             final = calculate_capital_after_days(cap7, days_needed, trades, bonus7)
-            col1, col2, col3 = st.columns(3)
+            col1, col2, col3, col4 = st.columns(4)
             with col1:
                 st.metric("⏰ Jours requis", f"{days_needed} j")
             with col2:
                 st.metric("🎯 Objectif", f"${objective:.2f}")
             with col3:
                 st.metric("✅ Atteint", f"${final:.2f}")
+            with col4:
+                st.metric("🎯 Trades/jour", f"{trades}")
         else:
             st.error("❌ Impossible d'atteindre ce multiple")
 
@@ -584,12 +601,12 @@ with tab8:
     with col1:
         cap8 = st.number_input("Capital initial", min_value=100, value=1000, key="uc8_capital")
     with col2:
-        level8 = st.selectbox("Niveau agent", ["LV0", "LV1", "LV2"], key="uc8_level")
+        level8 = st.selectbox("Niveau agent", ["LV0 (3)", "LV1 (4)", "LV2 (5)"], key="uc8_level")
     with col3:
         bonus8 = st.number_input("Jours de bonus", min_value=0, value=0, key="uc8_bonus")
     
     if st.button("Afficher prévisions", key="btn8"):
-        trades = 3 + (1 if level8 == "LV1" else 2 if level8 == "LV2" else 0)
+        trades = 3 + (1 if "LV1" in level8 else 2 if "LV2" in level8 else 0)
         milestones = get_long_term_milestones(cap8, trades, bonus8)
         
         col1, col2, col3, col4 = st.columns(4)
@@ -598,6 +615,9 @@ with tab8:
                 st.markdown(f"### {timeframe}")
                 st.metric("Capital", f"${data['Capital']:.2f}")
                 st.metric("Gain", f"${data['Gain']:.2f}")
+        
+        # Display trades info
+        st.metric("🎯 Trades/jour", f"{trades}")
 
 # ============= TAB 9: TURNOVER =============
 with tab9:
@@ -609,23 +629,25 @@ with tab9:
     with col2:
         vol_remain9 = st.number_input("Volume restant ($)", min_value=0, value=600, key="uc9_volume")
     with col3:
-        level9 = st.selectbox("Niveau agent", ["LV0", "LV1", "LV2"], key="uc9_level")
+        level9 = st.selectbox("Niveau agent", ["LV0 (3)", "LV1 (4)", "LV2 (5)"], key="uc9_level")
     with col4:
         bonus9 = st.number_input("Jours de bonus", min_value=0, value=0, key="uc9_bonus")
     
     if st.button("Calculer turnover", key="btn9"):
-        trades = 3 + (1 if level9 == "LV1" else 2 if level9 == "LV2" else 0)
+        trades = 3 + (1 if "LV1" in level9 else 2 if "LV2" in level9 else 0)
         days_needed = calculate_turnover_days(balance9, vol_remain9, trades, bonus9)
         
         daily_volume = balance9 * (trades * 0.01)
         
-        col1, col2, col3 = st.columns(3)
+        col1, col2, col3, col4 = st.columns(4)
         with col1:
             st.metric("📅 Jours requis", f"{days_needed} j" if days_needed else "∞")
         with col2:
             st.metric("📊 Volume/jour", f"${daily_volume:.2f}")
         with col3:
             st.metric("🎯 Volume total", f"${vol_remain9:.2f}")
+        with col4:
+            st.metric("🎯 Trades/jour", f"{trades}")
 
 # ============= FOOTER =============
 st.markdown("""

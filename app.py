@@ -59,7 +59,7 @@ def get_day_by_day_progression(initial_capital, days, trades_per_day, bonus_days
 def compare_agent_levels(initial_capital, days, bonus_days):
     """Compare les 3 niveaux d'agent"""
     levels = {}
-    for level_name, base_trades in [('LV0', 2), ('LV1', 3), ('LV2', 4)]:
+    for level_name, base_trades in [('LV0', 3), ('LV1', 4), ('LV2', 5)]:
         final_capital = calculate_capital_after_days(initial_capital, days, base_trades, bonus_days)
         levels[level_name] = {
             'final_capital': round(final_capital, 2),
