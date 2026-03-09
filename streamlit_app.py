@@ -359,16 +359,16 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ============= TABS =============
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs([
+tab1, tab2, tab9, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
     "📈 Gains X jours",
     "🎯 Atteindre objectif",
+    "💳 Turnover",
     "💼 Capital initial",
     "⚙️ Comparer niveaux",
     "📊 Progression",
     "⚡ Impact bonus",
     "🔢 Multiples",
-    "🏆 Long terme",
-    "💳 Turnover"
+    "🏆 Long terme"
 ])
 
 # ============= TAB 1: GAINS X JOURS =============
