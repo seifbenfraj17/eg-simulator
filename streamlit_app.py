@@ -239,7 +239,7 @@ def calculate_multiple_days(initial_capital, multiple, trades_per_day, bonus_day
     return None
 
 def get_long_term_milestones(initial_capital, trades_per_day, bonus_days):
-    timeframes = {'3 mois': 90, '6 mois': 180, '1 an': 365, '5 ans': 1825}
+    timeframes = {'1 mois': 30, '3 mois': 90, '6 mois': 180, '1 an': 365}
     milestones = {}
     for name, days in timeframes.items():
         capital = calculate_capital_after_days(initial_capital, days, trades_per_day, bonus_days)
