@@ -249,6 +249,26 @@ def get_long_term_milestones(initial_capital, trades_per_day, bonus_days):
         }
     return milestones
 
+def calculate_turnover_days(current_balance, remaining_volume, trades_per_day, bonus_days):
+    """Calcule les jours restants pour compléter le turnover (volume à trader)"""
+    current_balance = float(current_balance)
+    remaining_volume = float(remaining_volume)
+    
+    if remaining_volume <= 0:
+        return 0
+    
+    day = 0
+    while remaining_volume > 0 and day < 365:
+        day += 1
+        daily_trades = trades_per_day
+        if day <= bonus_days:
+            daily_trades += 2
+        # Chaque jour on consomme (trades × 1%) du solde actuel
+        volume_consumed = current_balance * (daily_trades * 0.01)
+        remaining_volume -= volume_consumed
+    
+    return day if remaining_volume <= 0 else None
+
 # ============= HEADER =============
 st.markdown("""
 <div style="text-align: center; margin-bottom: 3rem;">
@@ -258,7 +278,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ============= TABS =============
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs([
     "📈 Gains X jours",
     "🎯 Atteindre objectif",
     "💼 Capital initial",
@@ -266,7 +286,8 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
     "📊 Progression",
     "⚡ Impact bonus",
     "🔢 Multiples",
-    "🏆 Long terme"
+    "🏆 Long terme",
+    "💳 Turnover"
 ])
 
 # ============= TAB 1: GAINS X JOURS =============
@@ -495,11 +516,39 @@ with tab8:
                 st.metric("Capital", f"${data['Capital']:.2f}")
                 st.metric("Gain", f"${data['Gain']:.2f}")
 
+# ============= TAB 9: TURNOVER =============
+with tab9:
+    st.markdown("### 💳 Calculez les jours pour compléter votre turnover")
+    
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        balance9 = st.number_input("Solde actuel ($)", min_value=100, value=1500, key="uc9_balance")
+    with col2:
+        vol_remain9 = st.number_input("Volume restant ($)", min_value=0, value=600, key="uc9_volume")
+    with col3:
+        level9 = st.selectbox("Niveau agent", ["LV0", "LV1", "LV2"], key="uc9_level")
+    with col4:
+        bonus9 = st.number_input("Jours de bonus", min_value=0, value=0, key="uc9_bonus")
+    
+    if st.button("Calculer turnover", key="btn9"):
+        trades = 2 + (1 if level9 == "LV1" else 2 if level9 == "LV2" else 0)
+        days_needed = calculate_turnover_days(balance9, vol_remain9, trades, bonus9)
+        
+        daily_volume = balance9 * (trades * 0.01)
+        
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("📅 Jours requis", f"{days_needed} j" if days_needed else "∞")
+        with col2:
+            st.metric("📊 Volume/jour", f"${daily_volume:.2f}")
+        with col3:
+            st.metric("🎯 Volume total", f"${vol_remain9:.2f}")
+
 # ============= FOOTER =============
 st.markdown("""
 ---
 <div style="text-align: center; margin-top: 3rem; padding: 2rem; color: rgba(255,255,255,0.7);">
-    <p>🚀 EG Simulator v2.0 - Streamlit Edition | Dernière mise à jour: Mar 9, 2026</p>
+    <p>🚀 EG Simulator v2.1 - Streamlit Edition | Dernière mise à jour: Mar 9, 2026</p>
     <p style="font-size: 0.85rem;">Disclaimer: Ceci est un simulateur éducatif. Les résultats réels peuvent varier.</p>
 </div>
 """, unsafe_allow_html=True)

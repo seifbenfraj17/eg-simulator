@@ -107,6 +107,26 @@ def get_long_term_milestones(initial_capital, trades_per_day, bonus_days):
         }
     return milestones
 
+def calculate_turnover_days(current_balance, remaining_volume, trades_per_day, bonus_days):
+    """Calcule les jours restants pour compléter le turnover (volume à trader)"""
+    current_balance = float(current_balance)
+    remaining_volume = float(remaining_volume)
+    
+    if remaining_volume <= 0:
+        return 0
+    
+    day = 0
+    while remaining_volume > 0 and day < 365:
+        day += 1
+        daily_trades = trades_per_day
+        if day <= bonus_days:
+            daily_trades += 2
+        # Chaque jour on consomme (trades × 1%) du solde actuel
+        volume_consumed = current_balance * (daily_trades * 0.01)
+        remaining_volume -= volume_consumed
+    
+    return day if remaining_volume <= 0 else None
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     result = None
@@ -213,6 +233,19 @@ def index():
                     'type': 'uc8',
                     'capital': capital,
                     'milestones': milestones
+                }
+            
+            elif use_case == 'uc9':
+                balance = float(request.form.get('balance', 1500))
+                remaining_volume = float(request.form.get('remaining_volume', 600))
+                days_needed = calculate_turnover_days(balance, remaining_volume, trades_per_day, bonus_days)
+                daily_volume = balance * (trades_per_day * 0.01)
+                result = {
+                    'type': 'uc9',
+                    'balance': balance,
+                    'remaining_volume': remaining_volume,
+                    'days_needed': days_needed,
+                    'daily_volume': round(daily_volume, 2)
                 }
         except Exception as e:
             print(f"Error: {e}")
