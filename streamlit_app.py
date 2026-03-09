@@ -149,6 +149,80 @@ st.markdown("""
         text-transform: uppercase;
         letter-spacing: 0.05em;
     }
+    
+    /* ============= MOBILE RESPONSIVE ============= */
+    @media (max-width: 768px) {
+        [data-testid="stMainBlockContainer"] {
+            padding-top: 1rem !important;
+        }
+        
+        h1 {
+            font-size: 2rem !important;
+            margin-bottom: 0.8rem !important;
+        }
+        
+        h2 {
+            font-size: 1.3rem !important;
+        }
+        
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 0.3rem;
+            padding: 0.3rem;
+        }
+        
+        .stTabs [data-baseweb="tab"] {
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+        }
+        
+        .stButton > button {
+            padding: 0.9rem 1.5rem !important;
+            font-size: 0.95rem !important;
+            height: 50px !important;
+        }
+        
+        .stNumberInput > div > div > input,
+        .stSelectbox > div > div > select {
+            height: 45px !important;
+            font-size: 1rem !important;
+            padding: 0.8rem !important;
+        }
+        
+        .stMetric {
+            padding: 1rem !important;
+            margin-bottom: 0.8rem !important;
+        }
+        
+        .metric-value {
+            font-size: 1.8rem !important;
+        }
+        
+        .metric-label {
+            font-size: 0.75rem !important;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        h1 {
+            font-size: 1.5rem !important;
+            margin-bottom: 0.5rem !important;
+        }
+        
+        .stTabs [data-baseweb="tab"] {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.65rem;
+        }
+        
+        .stButton > button {
+            padding: 0.75rem 1rem !important;
+            font-size: 0.85rem !important;
+            height: 45px !important;
+        }
+        
+        .stNumberInput, .stSelectbox {
+            margin-bottom: 1rem !important;
+        }
+    }
 </style>
 """, unsafe_allow_html=True)
 
