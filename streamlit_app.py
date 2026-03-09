@@ -250,7 +250,8 @@ def get_long_term_milestones(initial_capital, trades_per_day, bonus_days):
     return milestones
 
 def calculate_turnover_days(current_balance, remaining_volume, trades_per_day, bonus_days):
-    """Calcule les jours restants pour compléter le turnover (volume à trader)"""
+    """Calcule les jours restants pour compléter le turnover (volume à trader)
+    En tenant compte de l'augmentation du solde avec les gains chaque jour"""
     current_balance = float(current_balance)
     remaining_volume = float(remaining_volume)
     
@@ -263,7 +264,13 @@ def calculate_turnover_days(current_balance, remaining_volume, trades_per_day, b
         daily_trades = trades_per_day
         if day <= bonus_days:
             daily_trades += 2
-        # Chaque jour on consomme (trades × 1%) du solde actuel
+        
+        # 1. Gain du jour (0.65% par trade)
+        daily_gain_percent = daily_trades * 0.65 / 100
+        daily_gain = current_balance * daily_gain_percent
+        current_balance += daily_gain
+        
+        # 2. Volume consommé ce jour (1% par trade, basé sur le solde APRÈS gains)
         volume_consumed = current_balance * (daily_trades * 0.01)
         remaining_volume -= volume_consumed
     
